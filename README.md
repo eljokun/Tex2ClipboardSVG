@@ -19,5 +19,5 @@ If you don't know what dependencies are, get the damn executable.
 ```
 
 # Support the Creator
-Hi! If this tool has proved useful to you and you would like to support me, feel free to head on to [https://ko-fi.com/eljokun]
+Hi! If this tool has proved useful to you and you would like to support me, feel free to head on to https://ko-fi.com/eljokun
 Thank you <3
