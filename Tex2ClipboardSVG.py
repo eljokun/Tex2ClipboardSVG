@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
             self.updateFontSizeLabel('PASS')
         except Exception as FontSizeError:
             # if it fails, set to default value and update the label with a fail flag
-            self.properties.FontSize = 300
+            self.properties.FontSize = 12
             self.updateFontSizeLabel('FAIL')
             # print the error, because i like complaining
             print(f'Failed to update font size value: {self.FontSizeBox.text()} \n {FontSizeError}')
