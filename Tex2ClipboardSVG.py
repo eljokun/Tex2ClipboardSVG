@@ -26,6 +26,7 @@ class Properties(QObject):
         self.DPI = 300
         self.FontSize = 12
         self.copyFlag = 0
+        self.NOCOPY = False
 
 class MainWindow(QMainWindow):
     # Define updaters
@@ -92,25 +93,34 @@ class MainWindow(QMainWindow):
             img.text(0, 0, fr'${eqn}$', fontsize=int(self.properties.FontSize), parse_math=True)
             # Create SVG of plot, save as byte stream instead of file
             img.savefig(self.properties.byteIO, transparent=True, dpi=int(self.properties.DPI), format='svg', bbox_inches='tight', pad_inches=0.1)
+            return 'SUCCESS'
         except ValueError:
+            plot.close(img)
+            return 'FAILED'
             pass
         except Exception as rendererr:
-            raise Exception(f'Failed to render equation, error trace below \n {rendererr}')
+            plot.close(img)
+            return f'FAILED: {rendererr}'
         finally:
             plot.close(img)
+            if eqn == r'\text{ }':
+                return 'EMPTY'
     # Retrieve SVG byte array and send to clipboard with MIME data
-    def createSVG(self):
-        # Retrieve SVG byte array
-        byte_array = QByteArray(self.properties.byteIO.getvalue())
-        # Initialize mime data as qmimedata object, thanks qt
-        mimeData = QMimeData()
-        # Set the data type to SVG+xml, with byte array as following data
-        mimeData.setData("image/svg+xml", byte_array)
-        # Initialize clipboard
-        clipboard = QGuiApplication.clipboard()
-        # Indicate mime type to clipboard
-        clipboard.setMimeData(mimeData)
-
+    def createSVG(self,arg):
+        if arg == 'SUCCESS' or arg == 'EMPTY':
+            # Retrieve SVG byte array
+            byte_array = QByteArray(self.properties.byteIO.getvalue())
+            # Initialize mime data as qmimedata object, thanks qt
+            mimeData = QMimeData()
+            # Set the data type to SVG+xml, with byte array as following data
+            mimeData.setData("image/svg+xml", byte_array)
+            if (not self.properties.NOCOPY) and (arg == 'SUCCESS'):
+                # Initialize clipboard
+                clipboard = QGuiApplication.clipboard()
+                # Indicate mime type to clipboard
+                clipboard.setMimeData(mimeData)
+        if arg == 'FAILED':
+            return
         # Write the SVG data to a temporary file
         with tempfile.NamedTemporaryFile(delete=False,delete_on_close=True, suffix=".svg") as temp:
             # Write the byte array to the temporary file
@@ -132,22 +142,12 @@ class MainWindow(QMainWindow):
 
     # Tick Rendering Per Keystroke
     def renderticker(self):
-        # Fail flag to indicate if rendering failed
-        failFlag=0
         # Attempt to render equation
         try:
-            self.render_eq()
-        # If it fails set flag to one and print the error with the attempted equation
-        except Exception as eqnerr:
-            failFlag = 1
-            print(f'Failed at rendering equation {self.eq_box.text()}, trace below; \n {eqnerr}')
-        # If it passed, attempt to create and copy the SVG
-        if failFlag == 0:
-            try:
-                self.createSVG()
-            # If it fails, for some ungodly reason, print error message and trace info
-            except Exception as err:
-                print(f'Erorr: Could not create and copy SVG, information below; \n {err}')
+            self.createSVG(self.render_eq())
+        except Exception as err:
+            print(f'An error occurred while rendering equation: {err}')
+
         else:
             return
 
