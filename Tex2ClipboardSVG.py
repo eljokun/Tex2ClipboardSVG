@@ -111,8 +111,8 @@ class MainWindow(QMainWindow):
         # Indicate mime type to clipboard
         clipboard.setMimeData(mimeData)
 
-        # Write the SVG data to a temporary file, delete flag indicates it will be deleted after usage
-        with tempfile.NamedTemporaryFile(delete=True, suffix=".svg") as temp:
+        # Write the SVG data to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".svg") as temp:
             # Write the byte array to the temporary file
             temp.write(byte_array.data())
             # Get the path of the temporary file
