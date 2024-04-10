@@ -3,7 +3,7 @@
 # go blame her, she introduced the eldritch horror that are classes into this program,
 # even though they were the most unnecessary thing in the universe after what my ex did to me
 from PyQt6.QtSvgWidgets import QGraphicsSvgItem
-from PyQt6.QtWidgets import QWidget, QApplication, QMainWindow, QVBoxLayout, QLineEdit
+from PyQt6.QtWidgets import QWidget, QApplication, QMainWindow, QVBoxLayout, QLineEdit, QPushButton
 from PyQt6.QtGui import QGuiApplication
 from PyQt6.QtCore import QMimeData, QByteArray, Qt, QObject
 from PyQt6.QtWidgets import QGraphicsView, QGraphicsScene, QLabel
