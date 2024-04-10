@@ -1,3 +1,4 @@
+# Tex2ClipboardSVG
 A Python real-time TeX equation editor based on matplotlib designed for quick use, converts LaTeX text input in matplotlib-supported syntax into rendered a SVG that is copied right onto your clipboard every keystroke
 # Usage
 Install, run and type your equation. When you're done typing, it will already be available in your clipboard as an SVG, paste into your favorite document editor, and voila!
