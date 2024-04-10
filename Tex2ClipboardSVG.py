@@ -27,11 +27,29 @@ class Properties(QObject):
         self.FontSize = 12
         self.copyFlag = 0
         self.NOCOPY = False
+        self.equation = '(x + y)^2 = x^2 + y^2'
 class MainWindow(QMainWindow):
     # Define updaters
     def updateDPILabel(self,flag):
         # Update DPI value shown on label
-        self.DPILabel.setText(f'Resolution: {self.properties.DPI} DPI')
+        if self.properties.DPI<=500:
+            self.DPILabel.setText(f'Resolution: {self.properties.DPI} DPI')
+        elif self.properties.DPI > 500 and self.properties.DPI<=1000:
+            self.DPILabel.setText(f'Resolution: {self.properties.DPI} DPI, you wanna write this in individual atoms or'
+                                  f' what?')
+        elif self.properties.DPI > 1000 and self.properties.DPI<=10000:
+            self.DPILabel.setText(f'Resolution: {self.properties.DPI} DPI, you wanna write this in individual quarks or'
+                                  f' what?')
+        elif self.properties.DPI > 10000 and self.properties.DPI<=100000:
+            self.DPILabel.setText(f'Resolution: {self.properties.DPI} DPI, you wanna write this in individual '
+                                  f'strings or what?')
+        elif self.properties.DPI > 100000 and self.properties.DPI<=1000000:
+            self.DPILabel.setText(f'one day you will answer to a god who will not be as merciful as i am. Resolution:'
+                                  f' {self.properties.DPI} DPI')
+        else:
+            self.properties.DPI = 300
+            self.DPILabel.setText(f'you are sick. fuck it. *unsets your resolution*'
+                                  f' Resolution: {self.properties.DPI} DPI')
         # If the value change failed, set to red background to indicate defaults were applied
         if flag == 'FAIL':
             self.DPIbox.setStyleSheet("background-color: rgb(255,143,143)")
@@ -55,7 +73,15 @@ class MainWindow(QMainWindow):
 
     def updateFontSizeLabel(self,flag):
         # Change font size label text
-        self.FontSizeLabel.setText(f'Font Size: {self.properties.FontSize} pt')
+        if self.properties.FontSize <= 200:
+            self.FontSizeLabel.setText(f'Font Size: {self.properties.FontSize} pt')
+        elif self.properties.FontSize > 200 and self.properties.FontSize <= 1000:
+            self.FontSizeLabel.setText(f'Font Size: {self.properties.FontSize} [COMICALLY LARGE]')
+        elif self.properties.FontSize > 1000 and self.properties.FontSize<=10000:
+            self.FontSizeLabel.setText(f'Font Size: [C H O N K]')
+        else:
+            self.properties.FontSize = 12
+            self.FontSizeLabel.setText(f'Okay, enough playing around. Font Size: {self.properties.FontSize} pt')
         # If change had failed, update with failure background
         if flag == 'FAIL':
             self.FontSizeBox.setStyleSheet("background-color: rgb(255,143,143)")
@@ -77,19 +103,20 @@ class MainWindow(QMainWindow):
             # print the error, because i like complaining
             print(f'Failed to update font size value: {self.FontSizeBox.text()} \n {FontSizeError}')
     # Equation Renderer
-    def render_eq(self):
+    def render_eq(self,launch):
         # Initialize plot
         img = plot.figure(figsize=(1, 1))
-        # Retrieve Equation
-        eqn = self.eq_box.text()
+        if not launch:
+            # Retrieve Equation
+            self.properties.equation = self.eq_box.text()
         # Strip spaces after it's done because matplotlib will bitch about a single space ._.
-        eqn = eqn.rstrip()
+        self.properties.equation = self.properties.equation.rstrip()
         # If it's empty, render empty space to avoid errors
-        if eqn == '':
-            eqn = r'\text{ }'
+        if self.properties.equation == '':
+            self.properties.equation = r'\text{ }'
         try:
             # Render the equation using matplotlib plot labelling
-            img.text(0, 0, fr'${eqn}$', fontsize=int(self.properties.FontSize), parse_math=True)
+            img.text(0, 0, fr'${self.properties.equation}$', fontsize=int(self.properties.FontSize), parse_math=True)
             # Create SVG of plot, save as byte stream instead of file
             img.savefig(self.properties.byteIO, transparent=True, dpi=int(self.properties.DPI), format='svg', bbox_inches='tight', pad_inches=0.1)
             return 'SUCCESS'
@@ -102,7 +129,7 @@ class MainWindow(QMainWindow):
             return f'FAILED: {rendererr}'
         finally:
             plot.close(img)
-            if eqn == r'\text{ }':
+            if self.properties.equation == r'\text{ }':
                 return 'EMPTY'
     # Retrieve SVG byte array and send to clipboard with MIME data
     def createSVG(self,arg):
@@ -143,10 +170,9 @@ class MainWindow(QMainWindow):
     def renderticker(self):
         # Attempt to render equation
         try:
-            self.createSVG(self.render_eq())
+            self.createSVG(self.render_eq(False))
         except Exception as err:
             print(f'An error occurred while rendering equation: {err}')
-
         else:
             return
 
@@ -215,6 +241,8 @@ if __name__ == '__main__':
     window = MainWindow()
     # Show main window, because that is literally the point of the program
     window.show()
+    window.render_eq(True)
+    window.createSVG('EMPTY')
     # Close when windows is closed because why the fuck would the CLI stay open
     sys.exit(app.exec())
 
