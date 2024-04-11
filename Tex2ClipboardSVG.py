@@ -148,23 +148,24 @@ class MainWindow(QMainWindow):
         if arg == 'FAILED':
             return
         # Write the SVG data to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False,delete_on_close=True, suffix=".svg") as temp:
-            # Write the byte array to the temporary file
-            temp.write(byte_array.data())
-            # Get the path of the temporary file
-            temp_path = temp.name
-        # Remove previous SVG from view
-        self.scene.clear()
-        # Load the temporary file created earlier
-        # into the QGraphicsSvgItem and add it to the viewport
-        svgItem = QGraphicsSvgItem(temp_path)
-        # Add new SVG
-        self.scene.addItem(svgItem)
-        # make it fit, duh
-        self.view.fitInView(svgItem, Qt.AspectRatioMode.KeepAspectRatio)
-        # Flush IO stream for next SVG byte array
-        self.properties.byteIO.seek(0)
-        self.properties.byteIO.truncate()
+        with tempfile.TemporaryDirectory() as tempdir:
+            with tempfile.NamedTemporaryFile(dir=tempdir,delete=False,delete_on_close=True, suffix=".svg") as temp:
+                # Write the byte array to the temporary file
+                temp.write(byte_array.data())
+                # Get the path of the temporary file
+                temp_path = temp.name
+            # Remove previous SVG from view
+            self.scene.clear()
+            # Load the temporary file created earlier
+            # into the QGraphicsSvgItem and add it to the viewport
+            svgItem = QGraphicsSvgItem(temp_path)
+            # Add new SVG
+            self.scene.addItem(svgItem)
+            # make it fit, duh
+            self.view.fitInView(svgItem, Qt.AspectRatioMode.KeepAspectRatio)
+            # Flush IO stream for next SVG byte array
+            self.properties.byteIO.seek(0)
+            self.properties.byteIO.truncate()
 
     # Tick Rendering Per Keystroke
     def renderticker(self):
